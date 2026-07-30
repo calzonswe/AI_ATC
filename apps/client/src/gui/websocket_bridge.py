@@ -77,6 +77,12 @@ class WebSocketBridge(QObject if HAS_QT_WS else object):
             "aircraft_type": aircraft_type,
         })
 
+    def send_flight_plan(self, flight_plan: dict) -> None:
+        self.send_message({
+            "type": "flight_plan",
+            "flight_plan": flight_plan,
+        })
+
     def set_message_handler(self, handler: WSMessageCallback) -> None:
         self._message_handler = handler
 

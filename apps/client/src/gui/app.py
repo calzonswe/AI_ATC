@@ -19,6 +19,7 @@ from .flight_info_widget import FlightInfoWidget
 from .ptt_manager import PTTManager
 from .radio_widget import RadioWidget
 from .settings_store import SettingsStore
+from .simbrief_widget import SimBriefWidget
 from .state import ClientState, ClientStatus
 from .websocket_bridge import WebSocketBridge
 
@@ -68,6 +69,9 @@ class MainWindow(QMainWindow):
         self._radio_widget = RadioWidget()
         layout.addWidget(self._radio_widget)
 
+        self._simbrief_widget = SimBriefWidget()
+        layout.addWidget(self._simbrief_widget)
+
         layout.addStretch()
 
         self._build_menu()
@@ -99,6 +103,9 @@ class MainWindow(QMainWindow):
 
         self._flight_widget.callsign_changed.connect(self._on_callsign_changed)
         self._flight_widget.aircraft_type_changed.connect(self._on_aircraft_changed)
+
+        self._simbrief_widget.flight_plan_fetched.connect(self._on_flight_plan_fetched)
+        self._simbrief_widget.pilot_id_changed.connect(self._on_simbrief_pilot_changed)
 
         self._audio_widget.mic_device_changed.connect(self._on_mic_changed)
         self._audio_widget.speaker_device_changed.connect(self._on_speaker_changed)
@@ -132,12 +139,15 @@ class MainWindow(QMainWindow):
         self._state.com1_freq = restored.com1_freq
         self._state.com2_freq = restored.com2_freq
         self._state.transponder_code = restored.transponder_code
+        self._state.simbrief_pilot_id = restored.simbrief_pilot_id
 
         self._connection_widget._ip_input.setText(self._state.server_ip)
         self._connection_widget._port_input.setValue(self._state.server_port)
         self._connection_widget.set_callsign(self._state.callsign)
         self._flight_widget.callsign = self._state.callsign
         self._flight_widget.aircraft_type = self._state.aircraft_type
+        self._simbrief_widget.pilot_id = self._state.simbrief_pilot_id
+
         self._audio_widget.set_ptt_key(self._state.ptt_key)
         self._audio_widget.set_mic_volume(self._state.mic_volume)
         self._audio_widget.set_speaker_volume(self._state.speaker_volume)
@@ -186,6 +196,8 @@ class MainWindow(QMainWindow):
             f"Connected to {self._state.server_ip}:{self._state.server_port}"
         )
         self._ws.send_connect(self._state.callsign, self._state.aircraft_type)
+        if self._state.flight_plan:
+            self._ws.send_flight_plan(self._state.flight_plan)
 
     def _on_ws_disconnected(self) -> None:
         self._state.status = ClientStatus.DISCONNECTED
@@ -243,6 +255,30 @@ class MainWindow(QMainWindow):
 
     def _on_aircraft_changed(self, aircraft: str) -> None:
         self._state.aircraft_type = aircraft.upper()
+
+    def _on_flight_plan_fetched(self, flight_plan) -> None:
+        fp_dict = {
+            "pilot_id": flight_plan.pilot_id,
+            "origin": flight_plan.origin,
+            "destination": flight_plan.destination,
+            "aircraft_type": flight_plan.aircraft_type,
+            "cruise_altitude": flight_plan.cruise_altitude,
+            "route": flight_plan.route,
+            "waypoints": flight_plan.waypoints,
+            "estimated_time": flight_plan.estimated_time,
+            "fuel": flight_plan.fuel,
+            "weights": flight_plan.weights,
+        }
+        self._state.flight_plan = fp_dict
+        if self._state.status == ClientStatus.CONNECTED:
+            self._ws.send_flight_plan(fp_dict)
+        self.statusBar().showMessage(
+            f"Flight plan loaded: {flight_plan.origin} → {flight_plan.destination}",
+            5000,
+        )
+
+    def _on_simbrief_pilot_changed(self, pilot_id: str) -> None:
+        self._state.simbrief_pilot_id = pilot_id
 
     def _on_mic_changed(self, device: str) -> None:
         self._state.mic_device = device

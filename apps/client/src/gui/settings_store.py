@@ -25,6 +25,7 @@ class SettingsStore:
             "mic_device", "speaker_device", "ptt_key",
             "mic_volume", "speaker_volume",
             "com1_freq", "com2_freq", "transponder_code",
+            "simbrief_pilot_id",
         ]
         data: Dict[str, str] = {}
         for key in keys:

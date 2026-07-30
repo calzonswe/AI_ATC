@@ -39,6 +39,8 @@ class ClientState:
     com2_freq: float = 121.800
     tuned_facility: str = ""
     transponder_code: str = "2000"
+    simbrief_pilot_id: str = ""
+    flight_plan: Optional[dict] = None
     available_mics: List[AudioDeviceInfo] = field(default_factory=list)
     available_speakers: List[AudioDeviceInfo] = field(default_factory=list)
 
@@ -57,6 +59,7 @@ def state_to_dict(state: ClientState) -> Dict[str, str]:
         "com1_freq": str(state.com1_freq),
         "com2_freq": str(state.com2_freq),
         "transponder_code": state.transponder_code,
+        "simbrief_pilot_id": state.simbrief_pilot_id,
     }
 
 
@@ -74,6 +77,7 @@ def dict_to_state(data: Dict[str, str]) -> ClientState:
         com1_freq=_float_or(data.get("com1_freq"), 118.300),
         com2_freq=_float_or(data.get("com2_freq"), 121.800),
         transponder_code=data.get("transponder_code") or "2000",
+        simbrief_pilot_id=data.get("simbrief_pilot_id") or "",
     )
 
 

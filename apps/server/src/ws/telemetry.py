@@ -13,6 +13,7 @@ logger = structlog.get_logger(__name__)
 class ConnectionManager:
     def __init__(self):
         self._connections: dict[str, WebSocket] = {}
+        self._client_callsigns: dict[str, str] = {}
 
     async def connect(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
@@ -22,8 +23,15 @@ class ConnectionManager:
 
     def disconnect(self, client_id: str):
         self._connections.pop(client_id, None)
+        self._client_callsigns.pop(client_id, None)
         active_websocket_connections.dec()
         logger.info("ws_disconnected", client_id=client_id, total=len(self._connections))
+
+    def set_callsign(self, client_id: str, callsign: str) -> None:
+        self._client_callsigns[client_id] = callsign
+
+    def get_callsign(self, client_id: str) -> str:
+        return self._client_callsigns.get(client_id, client_id)
 
     async def send_json(self, client_id: str, data: dict):
         ws = self._connections.get(client_id)
@@ -80,6 +88,7 @@ async def telemetry_ws(websocket: WebSocket):
 
             elif msg_type == "connect":
                 callsign = msg.get("callsign", client_id)
+                manager.set_callsign(client_id, callsign)
                 logger.info("ws_client_connect", client_id=client_id, callsign=callsign)
                 aircraft_store.update(callsign, {
                     "callsign": callsign,
@@ -89,6 +98,23 @@ async def telemetry_ws(websocket: WebSocket):
                 await websocket.send_json({
                     "type": "connected",
                     "session_id": client_id,
+                })
+
+            elif msg_type == "flight_plan":
+                fp = msg.get("flight_plan", {})
+                callsign = manager.get_callsign(client_id)
+                logger.info(
+                    "ws_flight_plan",
+                    client_id=client_id,
+                    callsign=callsign,
+                    origin=fp.get("origin"),
+                    destination=fp.get("destination"),
+                )
+                aircraft_store.update(callsign, {"flight_plan": fp})
+                await websocket.send_json({
+                    "type": "flight_plan_ack",
+                    "origin": fp.get("origin"),
+                    "destination": fp.get("destination"),
                 })
 
             else:

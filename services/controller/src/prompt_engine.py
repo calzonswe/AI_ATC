@@ -460,13 +460,20 @@ class PromptEngine:
             fp = data.get("flight_plan", {})
             state = data.get("state", "unknown")
             tag = " *" if cs in controlled else ""
+            fp_str = f"Dep={fp.get('departure','?')} Arr={fp.get('arrival','?')}"
+            if fp.get("origin"):
+                fp_str += (
+                    f" Route={fp.get('origin','?')}->{fp.get('destination','?')}"
+                    f" {fp.get('route','')}"
+                    f" Cruise={fp.get('cruise_altitude','?')}"
+                )
             line = (
                 f"  [{cs}]{tag} State={state} "
                 f"Pos=({pos.get('lat', '?')}, {pos.get('lon', '?')}) "
                 f"Alt={pos.get('alt_msl', '?')}ft "
                 f"GS={motion.get('groundspeed', '?')}kn "
                 f"VS={motion.get('vertical_speed', '?')}fpm "
-                f"Dep={fp.get('departure', '?')} Arr={fp.get('arrival', '?')}"
+                f"{fp_str}"
             )
             lines.append(line)
         return lines
