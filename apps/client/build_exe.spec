@@ -50,6 +50,8 @@ a = Analysis(
         "gui.connection_widget",
         "gui.flight_info_widget",
         "gui.radio_widget",
+        "gui.simbrief_client",
+        "gui.simbrief_widget",
     ],
     hookspath=[],
     hooksconfig={},
