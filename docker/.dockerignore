@@ -1,0 +1,13 @@
+.git
+.gitignore
+*.md
+docs/
+tests/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+.idea/
+.vscode/
+.DS_Store

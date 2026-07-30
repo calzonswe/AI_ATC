@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenATC Admin</title>
+<script src="/admin/static/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/admin/static/admin.css">
+</head>
+<body>
+<header>
+  <h1>OpenATC Admin Dashboard</h1>
+  <div class="header-status">
+    <span class="live-indicator" id="liveIndicator">●</span>
+    <span id="lastUpdate">--</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="overview">Overview</button>
+  <button class="tab" data-tab="aircraft">Aircraft</button>
+  <button class="tab" data-tab="controllers">Controllers</button>
+  <button class="tab" data-tab="llm">LLM</button>
+  <button class="tab" data-tab="audio">Audio</button>
+  <button class="tab" data-tab="system">System</button>
+</nav>
+
+<div class="content">
+  <!-- Overview -->
+  <section id="tab-overview" class="tab-content active">
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-value" id="ovAircraft">--</div>
+        <div class="metric-label">Active Aircraft</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovControllers">--</div>
+        <div class="metric-label">Controllers</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovLLMLatency">--</div>
+        <div class="metric-label">LLM Avg Latency</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovAudioLatency">--</div>
+        <div class="metric-label">Audio Pipeline</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovCPU">--</div>
+        <div class="metric-label">CPU</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovRAM">--</div>
+        <div class="metric-label">RAM</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovHTTP">--</div>
+        <div class="metric-label">HTTP Requests</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="ovUptime">--</div>
+        <div class="metric-label">Uptime</div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-box">
+        <h3>LLM Latency (last 60s)</h3>
+        <canvas id="overviewLLMChart" height="200"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>System Resources</h3>
+        <canvas id="overviewSystemChart" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Aircraft -->
+  <section id="tab-aircraft" class="tab-content">
+    <div class="section-header">
+      <h2>Active Aircraft <span id="acCount" class="badge">0</span></h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Callsign</th><th>Lat</th><th>Lon</th><th>Alt (ft)</th>
+          <th>GS (kn)</th><th>HDG</th><th>COM1</th><th>Squawk</th><th>Last Seen</th>
+        </tr></thead>
+        <tbody id="aircraftBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Controllers -->
+  <section id="tab-controllers" class="tab-content">
+    <div class="section-header">
+      <h2>Controller Positions <span id="ctrlCount" class="badge">0</span></h2>
+      <span>WS Connections: <strong id="wsConnCount">0</strong></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Position</th><th>Callsign</th><th>Frequency</th>
+          <th>Airport</th><th>Status</th><th>Active AC</th><th>Uptime</th>
+        </tr></thead>
+        <tbody id="controllerBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- LLM -->
+  <section id="tab-llm" class="tab-content">
+    <div class="section-header">
+      <h2>LLM Inference Performance</h2>
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-value" id="llmAvgLatency">--</div><div class="metric-label">Avg Latency</div></div>
+      <div class="metric-card"><div class="metric-value" id="llmAvgTPS">--</div><div class="metric-label">Avg Tokens/s</div></div>
+      <div class="metric-card"><div class="metric-value" id="llmTotal">--</div><div class="metric-label">Total Requests</div></div>
+      <div class="metric-card"><div class="metric-value" id="llmModel">--</div><div class="metric-label">Model</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Latency over time</h3><canvas id="llmLatencyChart" height="220"></canvas></div>
+      <div class="chart-box"><h3>Tokens / second</h3><canvas id="llmTPSChart" height="220"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Audio -->
+  <section id="tab-audio" class="tab-content">
+    <div class="section-header">
+      <h2>Audio Pipeline Latency</h2>
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-value" id="audSTT">--</div><div class="metric-label">Avg STT (ms)</div></div>
+      <div class="metric-card"><div class="metric-value" id="audTTS">--</div><div class="metric-label">Avg TTS (ms)</div></div>
+      <div class="metric-card"><div class="metric-value" id="audTotal">--</div><div class="metric-label">Avg Total (ms)</div></div>
+      <div class="metric-card"><div class="metric-value" id="audPackets">--</div><div class="metric-label">Packets Processed</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>Pipeline Latency Breakdown</h3><canvas id="audioLatencyChart" height="220"></canvas></div>
+    </div>
+  </section>
+
+  <!-- System -->
+  <section id="tab-system" class="tab-content">
+    <div class="section-header">
+      <h2>System Resources</h2>
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-value" id="sysCPU">--</div><div class="metric-label">CPU Usage</div></div>
+      <div class="metric-card"><div class="metric-value" id="sysRAM">--</div><div class="metric-label">RAM Usage</div></div>
+      <div class="metric-card"><div class="metric-value" id="sysOllama">--</div><div class="metric-label">Ollama</div></div>
+      <div class="metric-card"><div class="metric-value" id="sysWS">--</div><div class="metric-label">WS Connections</div></div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-box"><h3>CPU & RAM</h3><canvas id="systemResourceChart" height="220"></canvas></div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  OpenATC v0.1.0 &mdash; <a href="/docs" target="_blank">API Docs</a>
+</footer>
+
+<script src="/admin/static/admin.js"></script>
+</body>
+</html>

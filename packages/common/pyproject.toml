@@ -1,0 +1,12 @@
+[project]
+name = "openatc-common"
+version = "0.1.0"
+description = "Shared models, utilities, and base classes for AI-ATC"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7",
+    "typing-extensions>=4.11",
+]
+
+[tool.ruff]
+line-length = 100

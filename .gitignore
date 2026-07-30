@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+*.so
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Node / TypeScript
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.next/
+.cache/
+
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.DotSettings
+
+# Rust
+target/
+Cargo.lock
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.vscode/settings.json
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Models (large binary files — download, don't commit)
+/models/
+*.bin
+*.gguf
+*.onnx

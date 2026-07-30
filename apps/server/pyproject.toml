@@ -1,0 +1,26 @@
+[project]
+name = "openatc-server"
+version = "0.1.0"
+description = "Main FastAPI entrypoint for AI-ATC"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "openatc-controller",
+    "openatc-world",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "structlog>=24.2",
+    "asyncpg>=0.29",
+    "httpx>=0.27",
+    "slowapi>=0.1.9",
+    "pyjwt>=2.8",
+    "prometheus-client>=0.20",
+    "passlib[bcrypt]>=1.7",
+    "websockets>=12.0",
+    "jinja2>=3.1",
+    "aiofiles>=23.2",
+    "psutil>=5.9",
+]

@@ -1,0 +1,196 @@
+services:
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: openatc-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ai_atc}
+      POSTGRES_USER: ${POSTGRES_USER:-atc_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?error}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-atc_admin} -d ${POSTGRES_DB:-ai_atc}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: openatc-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: openatc-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  adminer:
+    image: adminer:latest
+    container_name: openatc-adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - openatc-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: openatc-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./ollama-init.sh:/usr/local/bin/ollama-init.sh:ro
+    environment:
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:30b}
+    entrypoint: >
+      sh -c "
+        ollama serve &
+        sleep 3
+        /usr/local/bin/ollama-init.sh
+        wait
+      "
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
+      start_period: 120s
+
+  whisper-stt:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.whisper
+    container_name: openatc-whisper
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      WHISPER_MODEL_SIZE: ${WHISPER_MODEL_SIZE:-base}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-auto}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-default}
+    volumes:
+      - whisper_data:/root/.cache/whisper
+    networks:
+      - openatc-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  controller-service:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.controller
+    container_name: openatc-controller
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      POSTGRES_DSN: postgresql+asyncpg://${POSTGRES_USER:-atc_admin}:${POSTGRES_PASSWORD:?error}@postgres:5432/${POSTGRES_DB:-ai_atc}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:30b}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  fastapi-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+    container_name: openatc-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      controller-service:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DSN: postgresql+asyncpg://${POSTGRES_USER:-atc_admin}:${POSTGRES_PASSWORD:?error}@postgres:5432/${POSTGRES_DB:-ai_atc}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:30b}
+      WHISPER_URL: ${WHISPER_URL:-http://whisper-stt:9000}
+      ATC_API_TOKEN: ${ATC_API_TOKEN:?error}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    networks:
+      - openatc-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
+  ollama_data:
+  whisper_data:
+
+networks:
+  openatc-net:
+    driver: bridge

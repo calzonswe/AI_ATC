@@ -1,0 +1,19 @@
+[project]
+name = "openatc-world"
+version = "0.1.0"
+description = "World state manager — airspace, airports, weather, traffic"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "asyncpg>=0.29",
+    "sqlalchemy[asyncio]>=2.0",
+    "geoalchemy2>=0.14",
+    "alembic>=1.13",
+    "shapely>=2.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

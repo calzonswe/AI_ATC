@@ -1,0 +1,16 @@
+[project]
+name = "openatc-speech"
+version = "0.1.0"
+description = "Whisper.cpp STT + Piper TTS integration service"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "numpy>=1.26",
+    "sounddevice>=0.4",
+    "soundfile>=0.12",
+    "faster-whisper>=1.0",
+    "piper-tts>=1.5",
+]

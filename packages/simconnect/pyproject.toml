@@ -1,0 +1,10 @@
+[project]
+name = "openatc-simconnect"
+version = "0.1.0"
+description = "SimConnect bindings and interface wrappers"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "pydantic>=2.7",
+]

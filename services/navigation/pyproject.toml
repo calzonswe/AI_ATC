@@ -1,0 +1,12 @@
+[project]
+name = "openatc-navigation"
+version = "0.1.0"
+description = "Spatial routing calculation engine — SID/STAR, separation, great-circle"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "pydantic>=2.7",
+    "geographiclib>=2.0",
+    "shapely>=2.0",
+]

@@ -1,0 +1,60 @@
+"""SimConnect variable definitions for MSFS / P3D telemetry.
+
+Each entry maps a human-readable name to the SimConnect SIMVAR
+string used in SimConnect_AddToDataDefinition.
+"""
+
+SIMVARS = {
+    "LATITUDE": "PLANE LATITUDE",
+    "LONGITUDE": "PLANE LONGITUDE",
+    "ALTITUDE_MSL": "PLANE ALTITUDE",
+    "ALTITUDE_AGL": "PLANE ALT ABOVE GROUND",
+    "HEADING_TRUE": "PLANE HEADING DEGREES TRUE",
+    "HEADING_MAG": "PLANE HEADING DEGREES MAGNETIC",
+    "PITCH": "PLANE PITCH DEGREES",
+    "BANK": "PLANE BANK DEGREES",
+    "AIRSPEED_INDICATED": "AIRSPEED INDICATED",
+    "AIRSPEED_TRUE": "AIRSPEED TRUE",
+    "GROUND_SPEED": "GROUND VELOCITY",
+    "VERTICAL_SPEED": "VERTICAL SPEED",
+    "MACH": "MACH",
+    "ON_GROUND": "SIM ON GROUND",
+    "COM1_FREQ": "COM ACTIVE FREQUENCY:1",
+    "COM2_FREQ": "COM ACTIVE FREQUENCY:2",
+    "TRANSPONDER_CODE": "TRANSPONDER CODE:1",
+    "TRANSPONDER_STATE": "TRANSPONDER STATE:1",
+    "SIM_TIME": "ZULU TIME",
+    "TITLE": "TITLE",
+    "ATC_ID": "ATC ID",
+    "ATC_TYPE": "ATC TYPE",
+    "ATC_MODEL": "ATC MODEL",
+}
+
+REQUIRED_VARS = [
+    "LATITUDE",
+    "LONGITUDE",
+    "ALTITUDE_MSL",
+    "ALTITUDE_AGL",
+    "HEADING_TRUE",
+    "HEADING_MAG",
+    "PITCH",
+    "BANK",
+    "AIRSPEED_INDICATED",
+    "GROUND_SPEED",
+    "VERTICAL_SPEED",
+    "MACH",
+    "ON_GROUND",
+    "COM1_FREQ",
+    "COM2_FREQ",
+    "TRANSPONDER_CODE",
+    "TRANSPONDER_STATE",
+    "SIM_TIME",
+    "ATC_ID",
+]
+"""Minimum set of variables required for telemetry streaming."""
+
+# Unit conversions
+FT_TO_M = 0.3048
+M_TO_FT = 3.28084
+KN_TO_MS = 0.514444
+MS_TO_KN = 1.94384

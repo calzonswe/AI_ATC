@@ -1,0 +1,9 @@
+[project]
+name = "openatc-shared"
+version = "0.1.0"
+description = "Shared UI/core constants for AI-ATC"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "pydantic>=2.7",
+]

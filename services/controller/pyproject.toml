@@ -1,0 +1,17 @@
+[project]
+name = "openatc-controller"
+version = "0.1.0"
+description = "ATC controller logic engine — deterministic state machines"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "fastapi>=0.111",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "asyncpg>=0.29",
+    "httpx>=0.27",
+    "qdrant-client>=1.10",
+    "shapely>=2.0",
+]

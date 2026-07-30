@@ -1,0 +1,18 @@
+[project]
+name = "openatc-client"
+version = "0.1.0"
+description = "SimConnect / external client application with desktop GUI"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "openatc-simconnect",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "structlog>=24.2",
+    "httpx>=0.27",
+    "websockets>=12.0",
+    "PySide6>=6.6",
+    "sounddevice>=0.4.6",
+    "numpy>=1.26",
+]

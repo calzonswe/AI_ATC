@@ -1,0 +1,11 @@
+[project]
+name = "openatc-atis"
+version = "0.1.0"
+description = "ATIS broadcast service — automated weather and airport information"
+requires-python = ">=3.12"
+dependencies = [
+    "openatc-common",
+    "openatc-protocol",
+    "openatc-speech",
+    "pydantic>=2.7",
+]
