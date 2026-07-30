@@ -9,9 +9,6 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: apps/client
 
     steps:
       - uses: actions/checkout@v7
@@ -22,15 +19,16 @@ jobs:
           python-version: '3.12'
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v9
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --no-group dev
 
       - name: Install PyInstaller
         run: uv pip install pyinstaller
 
       - name: Build executable with PyInstaller
+        working-directory: apps/client
         run: uv run pyinstaller --clean --noconfirm build_exe.spec
 
       - name: Upload build artifact

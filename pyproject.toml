@@ -7,14 +7,27 @@ authors = [
     { name = "OpenATC Contributors" },
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff>=0.5.0",
     "pyright>=1.1.370",
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
     "pytest-cov>=5.0",
 ]
+
+[tool.uv.sources]
+openatc-common = { workspace = true }
+openatc-protocol = { workspace = true }
+openatc-shared = { workspace = true }
+openatc-simconnect = { workspace = true }
+openatc-atis = { workspace = true }
+openatc-controller = { workspace = true }
+openatc-navigation = { workspace = true }
+openatc-speech = { workspace = true }
+openatc-world = { workspace = true }
+openatc-client = { workspace = true }
+openatc-server = { workspace = true }
 
 [tool.uv.workspace]
 members = [
