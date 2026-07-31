@@ -14,7 +14,8 @@ import sys
 from pathlib import Path
 
 # Ensure the src directory is on the path so that `gui` package imports work
-SRC_DIR = os.path.join(os.path.dirname(__file__), "src")
+# Use os.getcwd() instead of __file__ because __file__ is not defined when PyInstaller imports the spec file
+SRC_DIR = os.path.join(os.getcwd(), "src")
 if SRC_DIR not in sys.path:
     sys.path.insert(0, SRC_DIR)
 
